@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test OCR</title>
+</head>
+<body>
+    <h2>Test OCR Pipeline</h2>
+    <input type="file" id="fileInput" accept=".pdf,.jpg,.png">
+    <button onclick="uploadFile()">Tester OCR</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function uploadFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (!file) {
+                alert("Sélectionnez un fichier");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/api/method/ocr_intelligent.api.ocr_pipeline.pipeline_complet', {
+                    method: 'POST',
+                    headers: {
+                        'X-Frappe-CSRF-Token': frappe.csrf_token
+                    },
+                    body: formData
+                });
+                const result = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Erreur: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

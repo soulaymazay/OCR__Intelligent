@@ -48,9 +48,9 @@ def auto_create_ocr_document(doc, method):
 
         # ── Valeurs alignées sur les options du Select dans le doctype ──
         statut_map = {
-            "valide":             "Validé",             # était "Validé automatiquement" → ERREUR
+            "valide":             "Validé",             
             "validation_requise": "Validation requise",
-            "avertissement":      "Validation requise", # était "Avertissement" → ERREUR
+            "avertissement":      "Validation requise", 
         }
         statut = statut_map.get(rapport["statut"], "En attente")
 

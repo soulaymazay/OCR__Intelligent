@@ -1,0 +1,10 @@
+{
+ "db_name": "_7716bdce63e3d38f",
+ "db_password": "B84V2F6oZGhREPO9",
+ "db_type": "mariadb",
+ "encryption_key": "yvL-xLmhF4QBt9XEt7mk-4PYnenYPA5zcnrvfZqUY-8=",
+
+  "allow_cors": "http://localhost:4200",
+  "ignore_csrf": 0,
+  "developer_mode": 1
+}

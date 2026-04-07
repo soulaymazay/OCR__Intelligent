@@ -1,0 +1,346 @@
+2026-04-03 19:50:30,576 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 19:51:03,214 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 20:01:22,372 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 20:02:47,348 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 20:04:16,775 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 20:06:07,263 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-03 20:23:38,336 ERROR frappe Could not take error snapshot: characters_written
+Site: ocr.localhost
+Form Dict: {'doctype': 'OCR Document', 'with_parent': '1', 'cached_timestamp': '', 'cmd': 'frappe.desk.form.load.getdoctype'}
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/app.py", line 103, in application
+    response = frappe.api.handle()
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/api.py", line 60, in handle
+    data = frappe.handler.handle()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 50, in handle
+    data = execute_cmd(cmd)
+           ^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/handler.py", line 85, in execute_cmd
+    return frappe.call(method, **frappe.form_dict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/__init__.py", line 1628, in call
+    return fn(*args, **newargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 75, in getdoctype
+    docs = get_meta_bundle(doctype)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/load.py", line 86, in get_meta_bundle
+    bundle = [frappe.desk.form.meta.get_meta(doctype)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 44, in get_meta
+    meta = FormMeta(doctype)
+           ^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 55, in __init__
+    self.load_assets()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 65, in load_assets
+    self.add_code()
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 120, in add_code
+    self.add_html_templates(path)
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/desk/form/meta.py", line 135, in add_html_templates
+    for fname in os.listdir(path):
+                 ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/soulaymazay/frappe-bench/apps/ocr_intelligent/ocr_intelligent/ocr_intelligent/doctype/ocr_document'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 60, in make_error_snapshot
+    snapshot = get_snapshot(exception)
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/soulaymazay/frappe-bench/apps/frappe/frappe/utils/error.py", line 153, in get_snapshot
+    value = pydoc.text.repr(getattr(evalue, name))
+                            ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: characters_written
+2026-04-04 14:22:21,461 WARNING frappe [OCR] ⚠️  image_enhancer indisponible, utilisation du fichier original : No module named 'pypdf'
+Site: ocr.localhost
+Form Dict: {'is_private': '1', 'folder': 'Home', 'cmd': 'upload_file'}

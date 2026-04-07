@@ -1,0 +1,52 @@
+2026-04-03 01:18:20,357 INFO ipython === bench console session ===
+2026-04-03 01:18:20,358 INFO ipython import frappe
+
+# Créer le DocType OCR Document
+doc = frappe.new_doc("DocType")
+doc.name = "OCR Document"
+doc.module = "OCR Intelligent"
+doc.autoname = "OCR-DOC-.####"
+
+fields = [
+    {"fieldname": "document_name",    "fieldtype": "Data",      "label": "Nom du document",     "reqd": 1},
+    {"fieldname": "document_type",    "fieldtype": "Select",    "label": "Type",                 "options": "Facture\nBon de livraison\nContrat"},
+    {"fieldname": "status",           "fieldtype": "Select",    "label": "Statut",               "options": "En attente\nEn cours\nValidation requise\nValidé\nRejeté", "default": "En attente"},
+    {"fieldname": "uploaded_by",      "fieldtype": "Link",      "label": "Téléversé par",        "options": "User"},
+    {"fieldname": "file_url",         "fieldtype": "Data",      "label": "URL fichier"},
+    {"fieldname": "confidence_score", "fieldtype": "Float",     "label": "Score OCR (%)"},
+    {"fieldname": "extracted_text",   "fieldtype": "Long Text", "label": "Texte extrait"},
+    {"fieldname": "invoice_number",   "fieldtype": "Data",      "label": "N° Facture"},
+    {"fieldname": "invoice_date",     "fieldtype": "Date",      "label": "Date facture"},
+    {"fieldname": "supplier",         "fieldtype": "Data",      "label": "Fournisseur"},
+    {"fieldname": "amount",           "fieldtype": "Currency",  "label": "Montant"},
+    {"fieldname": "delivery_ref",     "fieldtype": "Data",      "label": "Réf. bon livraison"},
+    {"fieldname": "validated_by",     "fieldtype": "Link",      "label": "Validé par",           "options": "User"},
+    {"fieldname": "rejection_reason", "fieldtype": "Text",      "label": "Raison du rejet"},
+]
+
+for f in fields:
+    doc.append("fields", f)
+
+doc.insert(ignore_permissions=True)
+frappe.db.commit()
+print("DocType OCR Document créé !")
+2026-04-03 01:18:20,359 INFO ipython exit;
+2026-04-03 01:18:20,360 INFO ipython === session end ===
+2026-04-03 12:28:28,222 INFO ipython === bench console session ===
+2026-04-03 12:28:28,226 INFO ipython # Dans la console Frappe
+import frappe
+
+# Vérifier que OCR Document existe
+print(frappe.db.exists("DocType", "OCR Document"))
+
+# Voir les tables créées
+tables = frappe.db.sql("SHOW TABLES LIKE '%OCR%'", as_list=True)
+print(tables)
+
+# Vérifier les champs
+fields = frappe.get_all("DocField", filters={"parent": "OCR Document"}, fields=["fieldname", "label"])
+for f in fields:
+    print(f)
+    
+2026-04-03 12:28:28,226 INFO ipython exit;
+2026-04-03 12:28:28,227 INFO ipython === session end ===

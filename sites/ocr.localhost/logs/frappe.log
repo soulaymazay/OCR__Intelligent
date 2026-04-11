@@ -344,3 +344,24 @@ AttributeError: characters_written
 2026-04-04 14:22:21,461 WARNING frappe [OCR] ⚠️  image_enhancer indisponible, utilisation du fichier original : No module named 'pypdf'
 Site: ocr.localhost
 Form Dict: {'is_private': '1', 'folder': 'Home', 'cmd': 'upload_file'}
+2026-04-08 13:23:25,200 ERROR frappe New Exception collected with id: 2026-04-08 13:23:24.792567-127.0.0.1-242
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/04/202', 'party': 'ACIER TUNISIE SAR', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-08 15:34:48,090 ERROR frappe New Exception collected with id: 2026-04-08 15:34:47.416051-127.0.0.1-e61
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/04/202', 'party': 'ACIER TUNISIE SAR', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-08 15:45:46,335 ERROR frappe New Exception collected with id: 2026-04-08 15:45:46.140430-127.0.0.1-a37
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/04/202', 'party': 'ACIER TUNISIE SAR', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-08 16:20:58,535 ERROR frappe New Exception collected with id: 2026-04-08 16:20:58.357421-127.0.0.1-38a
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/04/202', 'party': 'ACIER TUNISIE SAR', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-08 16:26:36,380 ERROR frappe New Exception collected with id: 2026-04-08 16:26:36.179275-127.0.0.1-a3e
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/03/2024', 'party': 'y-1-1 0 ae ACIER TUNISIE SARL', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-08 16:38:09,943 ERROR frappe New Exception collected with id: 2026-04-08 16:38:09.938036-127.0.0.1-83b
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-08', 'party_type': 'Supplier', 'bill_date': '15/03/2024', 'party': 'y-1-1 0 ae ACIER TUNISIE SARL', 'cmd': 'erpnext.accounts.party.get_due_date'}
+2026-04-11 13:31:26,470 ERROR frappe New Exception collected with id: 2026-04-11 13:31:26.294238-127.0.0.1-d4c
+Site: ocr.localhost
+Form Dict: {'posting_date': '2026-04-11', 'party_type': 'Supplier', 'party': 'FODEC\nBasa', 'company': 'Groupe Bayoudh Metal', 'cmd': 'erpnext.accounts.party.get_due_date'}

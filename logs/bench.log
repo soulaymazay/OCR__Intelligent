@@ -198,3 +198,251 @@
 2026-04-07 23:06:10,089 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost migrate
 2026-04-07 23:06:22,203 INFO /home/soulaymazay/.local/bin/bench --site ocr.local install-app erpnext
 2026-04-07 23:06:31,589 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost install-app erpnext
+2026-04-08 00:00:02,045 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-08 00:04:21,482 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost reinstall
+2026-04-08 10:53:31,229 INFO /home/soulaymazay/.local/bin/bench clear-cache
+2026-04-08 10:54:01,525 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 10:54:45,492 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-08 10:54:46,587 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-08 10:54:46,677 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-08 10:54:46,810 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-08 10:54:46,821 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-08 10:57:55,491 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost list-apps
+2026-04-08 10:58:23,764 INFO /home/soulaymazay/.local/bin/bench version
+2026-04-08 11:00:06,971 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost install-app erpnext
+2026-04-08 11:01:06,102 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_single_value --kwargs {"doctype":"System Settings","field":"setup_complete"}
+2026-04-08 11:01:11,425 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.set_single_value --kwargs {"doctype":"System Settings","field":"setup_complete","value":0}
+2026-04-08 11:01:16,225 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost install-app erpnext
+2026-04-08 11:01:33,883 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_single_value --args ["System Settings","setup_complete"]
+2026-04-08 11:01:38,125 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.set_single_value --args ["System Settings","setup_complete",0]
+2026-04-08 11:01:43,490 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost install-app erpnext
+2026-04-08 11:07:09,828 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.set_single_value --args ["System Settings","setup_complete",1]
+2026-04-08 11:07:24,062 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost list-apps
+2026-04-08 11:07:36,362 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost migrate
+2026-04-08 11:07:48,179 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 11:08:25,203 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_installed_apps
+2026-04-08 11:08:32,993 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_single_value --args ["System Settings","setup_complete"]
+2026-04-08 11:08:39,542 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_list --kwargs {"doctype":"Workspace","fields":["name"],"filters":{"module":"Accounts"},"limit_page_length":5}
+2026-04-08 11:09:02,030 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_active_domains
+2026-04-08 11:09:07,334 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.exists --args ["Has Role", {"parent":"Administrator", "role":"Accounts Manager"}]
+2026-04-08 11:09:11,146 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_list --kwargs {"doctype":"Workspace","fields":["name","module"],"filters":{"name":["in",["Accounting","Selling","Buying","Stock"]]},"limit_page_length":20}
+2026-04-08 11:09:34,878 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_value --args ["Workspace","Accounting",["public","is_hidden","for_user","module","title"]]
+2026-04-08 11:09:38,883 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_value --args ["Workspace","Selling",["public","is_hidden","for_user","module","title"]]
+2026-04-08 11:09:42,422 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_value --args ["Workspace","Utilisateurs",["public","is_hidden","for_user","module","title"]]
+2026-04-08 11:09:59,033 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_list --kwargs {"doctype":"Workspace Link","filters":{"parent":"Accounting"},"fields":["type","link_to"],"limit_page_length":50}
+2026-04-08 11:10:02,705 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_list --kwargs {"doctype":"Has Role","filters":{"parent":"Administrator"},"fields":["role"],"limit_page_length":200}
+2026-04-08 11:10:06,812 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 11:10:20,492 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost list-apps
+2026-04-08 11:10:41,794 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-08 11:10:42,776 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-08 11:10:42,788 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-08 11:10:42,851 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-08 11:10:42,946 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-08 11:57:15,792 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 11:57:22,430 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 12:00:01,700 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-08 12:02:31,331 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 12:07:22,905 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 12:07:29,067 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 12:08:17,106 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 12:56:36,731 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 12:56:51,333 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 14:56:21,128 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 14:56:25,608 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 15:16:46,331 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 15:16:50,411 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 15:39:54,651 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 15:40:00,071 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 15:43:36,637 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 15:43:40,376 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:17:19,024 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 16:17:25,257 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:17:59,292 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 16:18:03,155 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:24:35,103 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:33:24,442 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 16:33:29,567 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:36:01,182 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 16:36:05,380 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 16:53:36,207 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 16:53:44,921 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:12:19,268 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-08 17:12:20,279 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-08 17:12:20,291 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-08 17:12:20,308 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-08 17:12:20,333 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-08 17:31:07,407 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:38:10,180 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:39:05,406 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost migrate
+2026-04-08 17:39:28,804 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 17:45:35,488 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 17:45:39,353 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:56:20,427 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 17:56:24,358 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:57:31,408 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 17:57:35,003 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:58:53,110 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 17:58:57,196 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 18:00:01,623 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-08 18:03:12,189 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute ocr_intelligent.api.ocr_pipeline.resoudre_ou_creer_supplier --kwargs {"valeur_ocr":"FORTISTORE","create_if_missing":1}
+2026-04-08 18:04:12,747 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.client.get_list --kwargs {"doctype":"Supplier Group","fields":["name","is_group","parent_supplier_group"],"limit_page_length":20}
+2026-04-08 18:04:55,264 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --kwargs {"doctype":"Supplier Group","fields":["name","is_group","parent_supplier_group"],"limit":20}
+2026-04-08 18:06:01,205 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute ocr_intelligent.api.ocr_pipeline.resoudre_ou_creer_supplier --kwargs {"valeur_ocr":"FORTISTORE","create_if_missing":1}
+2026-04-08 18:06:07,304 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:06:10,817 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:06:41,306 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:06:45,531 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-08 18:13:34,815 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:13:38,521 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:19:30,487 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:19:34,493 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:23:01,470 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute ocr_intelligent.api.ocr_pipeline.obtenir_company_par_defaut_ocr
+2026-04-08 18:23:07,064 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --kwargs {"doctype":"Company","fields":["name"],"limit":5}
+2026-04-08 18:24:31,119 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_value --kwargs {"doctype":"Company","filters":{},"fieldname":"name"}
+2026-04-08 18:26:36,196 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:26:39,950 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:31:51,020 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:31:56,576 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-08 18:38:51,585 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-08 18:38:57,689 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 12:00:01,597 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-09 17:27:20,626 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 17:27:24,708 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:00:02,251 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-09 18:04:57,722 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:05:01,691 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:16:31,768 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:16:36,054 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:21:53,813 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql --kwargs {"query":"select name from `tabCompany` limit 5"}
+2026-04-09 18:22:59,260 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:23:03,826 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:30:53,972 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost mariadb -e select name from  limit 10;
+2026-04-09 18:30:59,374 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost mariadb -e select name, document_name, substring(extracted_text,1,700) as txt from  order by modified desc limit 3;
+2026-04-09 18:31:19,153 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql --kwargs {"query":"select name from tabCompany limit 10","as_dict":1}
+2026-04-09 18:31:22,607 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --kwargs {"doctype":"OCR Document","fields":["name","document_name","extracted_text"],"order_by":"modified desc","limit":1}
+2026-04-09 18:32:54,731 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:33:00,043 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:40:04,714 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:40:08,913 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:43:39,430 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --kwargs {"doctype":"OCR Document","fields":["name","modified","document_name","confidence_score","extracted_field"],"order_by":"modified desc","limit":5}
+2026-04-09 18:45:17,684 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:45:21,731 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 18:49:58,519 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --kwargs {"doctype":"OCR Document","fields":["name","modified","document_name","extracted_field","extracted_text"],"order_by":"modified desc","limit":2}
+2026-04-09 18:50:45,299 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 18:50:59,658 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 19:10:11,281 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.cache.delete_keys --kwargs {"key":"ocr_intelligent:*"}
+2026-04-09 19:10:42,029 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 19:11:25,149 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --args ["Company", "name", {}]
+2026-04-09 19:11:48,830 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-09 19:12:07,077 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.client.insert --kwargs {"doc": {"doctype": "Company", "company_name": "Groupe Bayoudh Metal", "abbr": "GBM", "default_currency": "TND", "country": "Tunisia", "enable_perpetual_inventory": 0}}
+2026-04-09 19:12:30,672 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all --args ["Company", {"fields": ["name","default_currency"]}, {}]
+2026-04-09 19:12:54,840 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql --args ["SELECT name FROM tabCompany LIMIT 5"]
+2026-04-09 19:13:14,870 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql --args ["SELECT name, default_currency FROM tabCompany"]
+2026-04-09 19:13:32,943 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql --args ["SELECT name FROM tabCompany"] --kwargs {"as_dict":1}
+2026-04-09 19:15:56,635 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 19:17:42,413 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 20:40:00,983 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.client.get_list --kwargs {"doctype":"File","filters":{"file_name":["like","%facture%"]},"fields":["name","file_name","file_url"],"limit_page_length":5}
+2026-04-09 20:40:37,702 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 20:54:21,967 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 20:54:26,246 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 21:01:18,938 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-09 21:01:20,022 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-09 21:01:20,151 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-09 21:01:20,228 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-09 21:01:20,425 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-09 22:35:27,499 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-09 22:35:59,237 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-09 22:36:34,005 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-09 22:38:46,362 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-09 22:44:22,295 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 22:44:27,461 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-09 23:30:34,452 INFO /home/soulaymazay/.local/bin/bench build --apps ocr_intelligent
+2026-04-09 23:30:39,549 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-10 00:00:01,996 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-10 00:08:33,591 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_all('OCR Document', fields=['name','document_name','extracted_field','confidence_score','status'], order_by='modified desc', limit=3)
+2026-04-10 00:08:54,638 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.get_list('OCR Document', fields=['name','document_name','extracted_field','confidence_score'], order_by='modified desc', limit=3)
+2026-04-10 00:09:07,679 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.db.sql "SELECT name, document_name, confidence_score, LEFT(extracted_field,500) FROM `tabOCR Document` ORDER BY modified DESC LIMIT 3"
+2026-04-10 00:45:44,921 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-10 01:26:15,992 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-10 06:00:02,658 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-10 10:37:31,213 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-10 12:00:02,285 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-10 18:30:42,318 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 09:51:38,101 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 09:51:39,633 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 09:51:39,677 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 09:51:39,721 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 09:51:39,800 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 10:42:30,083 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 10:42:31,052 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 10:42:31,142 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 10:42:31,201 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 10:42:31,257 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 11:00:57,352 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 11:00:58,424 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 11:00:58,435 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 11:00:58,633 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 11:00:58,666 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 11:51:36,067 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 11:58:52,011 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 11:59:00,664 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-11 12:00:02,340 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-11 12:01:57,802 INFO /home/soulaymazay/.local/bin/bench clear-cache
+2026-04-11 12:02:09,794 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 12:02:33,026 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 12:02:33,997 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 12:02:34,088 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 12:02:34,128 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 12:02:34,180 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 12:09:05,491 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:11:32,572 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:14:47,688 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 12:14:48,701 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 12:14:48,796 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 12:14:48,863 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 12:14:48,876 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 12:20:35,448 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:20:59,561 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 12:21:02,696 INFO /home/soulaymazay/.local/bin/bench restart
+2026-04-11 12:22:08,184 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 12:22:09,069 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 12:22:09,266 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 12:22:09,333 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 12:22:09,360 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 12:25:55,431 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:28:43,408 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:29:00,113 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 12:33:43,875 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:37:51,320 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 12:38:27,658 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 12:57:08,528 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:06:23,433 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:11:29,494 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:13:55,408 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 13:19:18,887 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:27:11,894 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:36:38,275 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:38:02,573 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:51:05,039 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 13:51:44,449 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost clear-cache
+2026-04-11 22:27:48,418 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 22:38:49,920 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost console
+2026-04-11 22:39:11,177 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_list --kwargs {"doctype":"OCR Document","fields":["name","document_name","extracted_field"],"order_by":"creation desc","limit_page_length":1}
+2026-04-11 22:39:31,383 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_value --args ["OCR Document","OCR-DOC-0080","extracted_text"]
+2026-04-11 22:40:39,895 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_list --kwargs {"doctype":"UOM","fields":["name"],"limit_page_length":20}
+2026-04-11 22:40:59,224 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_list --kwargs {"doctype":"Supplier","fields":["name"],"limit_page_length":20}
+2026-04-11 23:04:02,416 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_value --args ["OCR Document","OCR-DOC-0080","extracted_text"]
+2026-04-11 23:06:25,552 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 23:21:34,891 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_value --args ["Company","Groupe Bayoudh Metal","default_expense_account"]
+2026-04-11 23:21:58,388 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_list --kwargs {"doctype":"Company","fields":["name","default_expense_account"],"limit_page_length":5}
+2026-04-11 23:34:23,177 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_value --args ["Company","Groupe Bayoudh Metal","default_expense_account"]
+2026-04-11 23:36:02,833 INFO /home/soulaymazay/.local/bin/bench --site ocr.localhost execute frappe.get_list --kwargs {"doctype":"Company","fields":["name","default_expense_account"],"limit_page_length":5}
+2026-04-11 23:37:40,928 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-11 23:39:27,544 INFO /home/soulaymazay/.local/bin/bench start
+2026-04-11 23:39:28,699 INFO /home/soulaymazay/.local/bin/bench worker
+2026-04-11 23:39:28,748 INFO /home/soulaymazay/.local/bin/bench schedule
+2026-04-11 23:39:28,853 INFO /home/soulaymazay/.local/bin/bench watch
+2026-04-11 23:39:29,015 INFO /home/soulaymazay/.local/bin/bench serve --port 8000
+2026-04-11 23:49:25,374 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent
+2026-04-12 00:00:01,971 INFO /home/soulaymazay/.local/bin/bench --verbose --site all backup
+2026-04-12 00:26:57,918 INFO /home/soulaymazay/.local/bin/bench build --app ocr_intelligent

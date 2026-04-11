@@ -50,3 +50,37 @@ for f in fields:
     
 2026-04-03 12:28:28,226 INFO ipython exit;
 2026-04-03 12:28:28,227 INFO ipython === session end ===
+2026-04-09 19:11:51,525 INFO ipython === bench console session ===
+2026-04-09 19:11:51,529 INFO ipython companies = frappe.get_all("Company", fields=["name", "default_currency"])
+2026-04-09 19:11:51,529 INFO ipython print("Companies:", companies)
+2026-04-09 19:11:51,529 INFO ipython === session end ===
+2026-04-09 22:35:30,433 INFO ipython === bench console session ===
+2026-04-09 22:35:30,442 INFO ipython c = frappe.get_doc("Company", "Groupe Bayoudh Metal")
+2026-04-09 22:35:30,442 INFO ipython print(f"Currency: {c.default_currency}")
+2026-04-09 22:35:30,443 INFO ipython print(f"Country: {c.country}")
+2026-04-09 22:35:30,443 INFO ipython === session end ===
+2026-04-09 22:36:02,926 INFO ipython === bench console session ===
+2026-04-09 22:36:02,928 INFO ipython print("Global defaults currency:", frappe.db.get_default("currency"))
+2026-04-09 22:36:02,929 INFO ipython print("System Settings currency:", frappe.db.get_single_value("System Settings", "currency") if frappe.db.has_column("System Settings", "currency") else "N/A")
+2026-04-09 22:36:02,929 INFO ipython # Check suppliers
+2026-04-09 22:36:02,929 INFO ipython for s in frappe.get_all("Supplier", fields=["name", "default_currency"]):
+    print(f"Supplier: {s.name}, currency: {s.default_currency}")
+# Check global defaults
+gd = frappe.get_all("DefaultValue", filters={"defkey": "currency"}, fields=["defvalue", "parent"])
+2026-04-09 22:36:02,929 INFO ipython === session end ===
+2026-04-09 22:36:38,599 INFO ipython === bench console session ===
+2026-04-09 22:36:38,609 INFO ipython # Fix global default currency to TND
+2026-04-09 22:36:38,610 INFO ipython frappe.db.set_default("currency", "TND")
+2026-04-09 22:36:38,610 INFO ipython frappe.db.commit()
+2026-04-09 22:36:38,610 INFO ipython print("Done: global default currency set to TND")
+2026-04-09 22:36:38,610 INFO ipython # Verify
+2026-04-09 22:36:38,611 INFO ipython print("Verified:", frappe.db.get_default("currency"))
+2026-04-09 22:36:38,611 INFO ipython === session end ===
+2026-04-09 22:38:48,885 INFO ipython === bench console session ===
+2026-04-09 22:38:48,886 INFO ipython import json
+2026-04-09 22:38:48,887 INFO ipython docs = frappe.get_all("OCR Document", fields=["name", "extracted_field", "document_name"], order_by="modified desc", limit=3)
+2026-04-09 22:38:48,887 INFO ipython === session end ===
+2026-04-11 22:38:51,970 INFO ipython === bench console session ===
+2026-04-11 22:38:51,972 INFO ipython # Vérifier le dernier OCR Document pour voir le texte extrait
+2026-04-11 22:38:51,973 INFO ipython docs = frappe.get_list("OCR Document", fields=["name","document_name","extracted_text","extracted_field"], order_by="creation desc", limit=3)
+2026-04-11 22:38:51,973 INFO ipython === session end ===

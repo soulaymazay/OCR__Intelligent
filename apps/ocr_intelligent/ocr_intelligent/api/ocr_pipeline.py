@@ -170,13 +170,33 @@ def pipeline_complet(file_url=""):
         from ocr_intelligent.api.field_matcher    import MAPPING_CHAMPS
 
         lignes       = texte_brut.splitlines()
-        texte_entete = "\n".join(lignes[:min(30, len(lignes))])
+        texte_entete = "\n".join(lignes[:min(60, len(lignes))])
 
         if len(texte_entete.split()) < 3:
             texte_entete = texte_brut
 
         resultat_entete = extraire_champs_entete(texte_entete)
         type_doc        = resultat_entete["type_document"]
+
+        # ── Rejeter les documents qui NE SONT PAS des factures ────────
+        TYPES_REJETES = {"cheque", "bon_livraison", "devis", "bon_commande"}
+        _LABELS_REJETES = {
+            "cheque":        "chèque / virement",
+            "bon_livraison": "bon de livraison",
+            "devis":         "devis / proforma",
+            "bon_commande":  "bon de commande",
+        }
+        if type_doc in TYPES_REJETES:
+            return {
+                "success": False,
+                "type_document": type_doc,
+                "erreur": (
+                    f"Document refusé : ce fichier ressemble à un "
+                    f"{_LABELS_REJETES.get(type_doc, type_doc)}, "
+                    "pas à une facture d'achat. "
+                    "Veuillez scanner une facture fournisseur."
+                ),
+            }
 
         # Normaliser les noms de champs (echeance→date_echeance, tva→montant_tva)
         champs_valides = {}
@@ -191,8 +211,10 @@ def pipeline_complet(file_url=""):
             if champ_m not in champs_valides and val_m:
                 champs_valides[champ_m] = str(round(val_m, 3))
 
-        # Si l'en-tête n'a pas donné assez de champs, relancer sur le texte complet
-        if len(champs_valides) < 2 and texte_entete != texte_brut:
+        # Si des champs CRITIQUES manquent, relancer sur le texte complet
+        champs_critiques = ["numero_facture", "date", "fournisseur"]
+        champs_manquants = [c for c in champs_critiques if c not in champs_valides]
+        if champs_manquants and texte_entete != texte_brut:
             resultat_complet = extraire_champs_entete(texte_brut)
             if resultat_complet["type_document"] != "inconnu":
                 type_doc = resultat_complet["type_document"]
@@ -200,6 +222,12 @@ def pipeline_complet(file_url=""):
                 champ_norm = _NORMALISE_CHAMPS.get(champ, champ)
                 if valeur and champ_norm not in champs_valides:
                     champs_valides[champ_norm] = valeur
+
+        # ── Passe OCR dédiée à l'EN-TÊTE (zone haute de l'image) ────
+        champs_entete_image = _extraire_champs_entete_image(chemin_tmp)
+        for champ_e, val_e in champs_entete_image.items():
+            if val_e and champ_e not in champs_valides:
+                champs_valides[champ_e] = val_e
 
         # ── Analyse NLP : enrichissement + détection contexte ─────────
         # Récupérer les champs du formulaire passés en paramètre (optionnel)
@@ -225,6 +253,41 @@ def pipeline_complet(file_url=""):
         # Utiliser le type NLP si regex a échoué
         if type_doc == "inconnu" and analyse_nlp["type_document"] != "inconnu":
             type_doc = analyse_nlp["type_document"]
+
+        # ── Deuxième vérification après enrichissement NLP ────────────
+        if type_doc in TYPES_REJETES:
+            return {
+                "success": False,
+                "type_document": type_doc,
+                "erreur": (
+                    f"Document refusé : ce fichier ressemble à un "
+                    f"{_LABELS_REJETES.get(type_doc, type_doc)}, "
+                    "pas à une facture d'achat. "
+                    "Veuillez scanner une facture fournisseur."
+                ),
+            }
+
+        # ── Troisième vérification : "inconnu" sans signal facture → rejet ──
+        # Si la classification ne reconnaît pas le type, on s'assure qu'il
+        # existe au moins un indicateur de facturation dans le texte.
+        if type_doc == "inconnu":
+            _SIGNAUX_FACTURE = [
+                "facture", "invoice", "à payer", "net à payer",
+                "tva", "ttc", "ht", "montant ttc", "échéance",
+                "règlement", "facturé", "bill to", "vendu à",
+                "sold to", "facture n°", "fact n°",
+            ]
+            texte_lower_full = texte_brut.lower()
+            if not any(s in texte_lower_full for s in _SIGNAUX_FACTURE):
+                return {
+                    "success": False,
+                    "type_document": "inconnu",
+                    "erreur": (
+                        "Document refusé : ce fichier ne ressemble pas à une facture d'achat. "
+                        "Aucun indicateur de facturation détecté (facture, TVA, TTC, HT…). "
+                        "Veuillez scanner une facture fournisseur."
+                    ),
+                }
 
         # ── Mapping vers les champs Frappe (Facture d'Achat) ──────────
         mapping        = MAPPING_CHAMPS.get(type_doc, MAPPING_CHAMPS["inconnu"])
@@ -334,6 +397,294 @@ def pipeline_complet(file_url=""):
                 os.remove(chemin_tmp)
             except Exception:
                 pass
+
+
+# ──────────────────────────────────────────────────────────────────────
+# PASSE OCR DÉDIÉE À L'EN-TÊTE (zone haute de l'image)
+# ──────────────────────────────────────────────────────────────────────
+
+def _extraire_champs_entete_image(chemin_fichier):
+    """
+    Passe OCR ciblée sur l'en-tête de l'image.
+    Double stratégie:
+      1) Prétraitement adaptatif (grille supprimée) → PSM 6
+      2) Image brute upscalée (mieux pour les documents numériques) → PSM 6
+    Retourne un dict de champs OCR (numero_facture, date, fournisseur).
+    """
+    try:
+        from ocr_intelligent.ocr.header_extractor import extraire_champs_entete
+
+        ext = os.path.splitext(chemin_fichier)[1].lower()
+        if ext == ".pdf":
+            from pdf2image import convert_from_path
+            pages = convert_from_path(chemin_fichier, dpi=300)
+            if not pages:
+                return {}
+            pil_full = pages[0].convert("RGB")
+        else:
+            pil_full = PILImage.open(chemin_fichier).convert("RGB")
+
+        w, h = pil_full.size
+
+        # ── Stratégie 1 : Image brute upscalée (documents numériques) ────
+        # Upscaler ×3 et OCR directement
+        pil_big = pil_full.resize((w * 3, h * 3), PILImage.LANCZOS)
+        texte_raw = pytesseract.image_to_string(
+            pil_big, lang="fra+eng", config="--oem 3 --psm 6"
+        )
+
+        # ── Stratégie 2 : Zone haute prétraitée ──────────────────────────
+        img_cv = cv2.cvtColor(np.array(pil_full), cv2.COLOR_RGB2BGR)
+        zone = img_cv[:int(h * 0.50), :]
+        gris = cv2.cvtColor(zone, cv2.COLOR_BGR2GRAY) if len(zone.shape) == 3 else zone
+        hh, ww = gris.shape[:2]
+        if ww < 2500:
+            scale = 2500 / ww
+            gris = cv2.resize(gris, None, fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC)
+        binaire = cv2.adaptiveThreshold(
+            gris, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 15
+        )
+        horizontal = cv2.morphologyEx(binaire, cv2.MORPH_OPEN, np.ones((1, 40), np.uint8))
+        vertical = cv2.morphologyEx(binaire, cv2.MORPH_OPEN, np.ones((40, 1), np.uint8))
+        grille = cv2.add(horizontal, vertical)
+        propre = cv2.add(binaire, grille)
+        pil_propre = PILImage.fromarray(propre)
+        texte_clean = pytesseract.image_to_string(
+            pil_propre, lang="fra+eng", config="--oem 3 --psm 6"
+        )
+
+        # ── Combiner les deux textes + extraire ──────────────────────────
+        texte_combine = texte_raw + "\n" + texte_clean
+
+        resultat = extraire_champs_entete(texte_combine)
+
+        champs = {}
+        for champ, valeur in resultat.get("champs", {}).items():
+            if valeur is not None and str(valeur).strip():
+                champs[champ] = valeur
+
+        # Validation numero_facture : si trop long ou contient des mots, nettoyer
+        if "numero_facture" in champs:
+            num_val = champs["numero_facture"]
+            # Si le numéro contient des lettres après les chiffres (68pourMohamed), garder juste les chiffres initiaux
+            m_num = re.match(r'^(\d+)', num_val)
+            if m_num and len(num_val) > len(m_num.group(1)) + 3:
+                champs["numero_facture"] = m_num.group(1)
+            elif len(num_val) > 20:
+                del champs["numero_facture"]
+
+        # Extraction directe des dates (regex large sur tout le texte)
+        if "date" not in champs:
+            date = _extraire_date_heuristique(texte_combine)
+            if date:
+                champs["date"] = date
+
+        # Fallback date : crop ciblé sur la ligne N°/Date du tableau en-tête
+        if "date" not in champs:
+            date = _extraire_date_crop(pil_full)
+            if date:
+                champs["date"] = date
+
+        # Fallback fournisseur : heuristique sur les premières lignes UNIQUEMENT
+        if "fournisseur" not in champs:
+            fournisseur = _detecter_fournisseur_heuristique(texte_raw)
+            if fournisseur:
+                champs["fournisseur"] = fournisseur
+
+        # Fallback numéro de facture : pattern large
+        if "numero_facture" not in champs:
+            num = _extraire_numero_facture_heuristique(texte_combine)
+            if num:
+                champs["numero_facture"] = num
+
+        return champs
+
+    except Exception as e:
+        try:
+            frappe.log_error(f"Extraction en-tête image: {e}", "OCR Header Image")
+        except Exception:
+            pass
+        return {}
+
+
+def _extraire_date_heuristique(texte):
+    """Cherche une date valide dans le texte OCR."""
+    matches = re.findall(r'(\d{1,2})[/\-.](\d{1,2})[/\-.](\d{2,4})', texte)
+    for d, m, y in matches:
+        d_int, m_int = int(d), int(m)
+        y_int = int(y)
+        if y_int < 100:
+            y_int += 2000
+        if 1 <= d_int <= 31 and 1 <= m_int <= 12 and 2000 <= y_int <= 2050:
+            return f"{d}/{m}/{y}"
+    return None
+
+
+def _extraire_date_crop(pil_img):
+    """
+    Crop ciblé sur la zone N°/Date du tableau d'en-tête (y 8%–18%).
+    Upscale 8× + binarisation Otsu + PSM 6 pour lire les petites cellules.
+    """
+    try:
+        w, h = pil_img.size
+        for start_pct, end_pct in [(0.08, 0.17), (0.10, 0.20), (0.06, 0.22)]:
+            y0, y1 = int(h * start_pct), int(h * end_pct)
+            crop = pil_img.crop((0, y0, w, y1))
+            cw, ch = crop.size
+            big = crop.resize((cw * 8, ch * 8), PILImage.LANCZOS)
+            cv = cv2.cvtColor(np.array(big), cv2.COLOR_RGB2GRAY)
+            _, cv = cv2.threshold(cv, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+            pil_cv = PILImage.fromarray(cv)
+            texte = pytesseract.image_to_string(
+                pil_cv, lang="fra+eng", config="--oem 3 --psm 6"
+            )
+            date = _extraire_date_heuristique(texte)
+            if date:
+                return date
+    except Exception:
+        pass
+    return None
+
+
+def _extraire_numero_facture_heuristique(texte):
+    """Cherche un numéro de facture par heuristiques."""
+    # Pattern : "Facture N° XX" ou "N° XX" ou "FACT-XXXX"
+    patterns = [
+        r"(?:facture)\s*n[°o]\s*[:\-]?\s*(\d{1,10})",
+        r"\bN[°o]\s*[:\-]?\s*(\d{1,10})",
+        r"\bFACT[-\s]?(\d{2,})\b",
+        r"(?:facture)\s*(?:n[°o])?\s*[:\-]\s*([A-Za-z0-9][\w\-]{1,15})",
+    ]
+    for pat in patterns:
+        m = re.search(pat, texte, re.IGNORECASE)
+        if m:
+            val = m.group(1).strip()
+            # Éviter les faux positifs (trop long, que des 0, etc.)
+            if val and len(val) <= 15 and val != "0":
+                return val
+    return None
+
+
+def _detecter_fournisseur_heuristique(texte):
+    """
+    Détecte le fournisseur par heuristique quand les regex échouent.
+    Cherche : noms connus en base (exact + fuzzy), lignes en majuscules,
+    noms de société courants (SARL, SA, SUARL, etc.)
+    """
+    # 1. Chercher dans les fournisseurs connus en base (exact puis fuzzy)
+    try:
+        fournisseurs_connus = frappe.get_list(
+            "Supplier", fields=["name", "supplier_name"], limit=200
+        )
+        texte_lower = texte.lower()
+
+        # 1a. Correspondance exacte (insensible à la casse)
+        for f in fournisseurs_connus:
+            nom = (f.get("supplier_name") or f.get("name") or "").strip()
+            if len(nom) >= 3 and nom.lower() in texte_lower:
+                return nom
+
+        # 1b. Correspondance fuzzy via rapidfuzz
+        try:
+            from rapidfuzz import fuzz
+            lignes_texte = [l.strip() for l in texte.splitlines()[:30] if l.strip()]
+            for f in fournisseurs_connus:
+                nom = (f.get("supplier_name") or f.get("name") or "").strip()
+                if len(nom) < 3:
+                    continue
+                for ligne in lignes_texte:
+                    score = fuzz.partial_ratio(nom.lower(), ligne.lower())
+                    if score >= 80:
+                        return nom
+        except ImportError:
+            pass
+    except Exception:
+        pass
+
+    # 2. Chercher les lignes avec forme juridique (SARL, SA, SUARL, etc.)
+    for ligne in texte.splitlines()[:20]:
+        ligne_s = ligne.strip()
+        if not ligne_s or len(ligne_s) < 3:
+            continue
+        if re.search(r'\b(?:SARL|SA\b|SUARL|SAS\b|EURL|SNC|GIE)\b', ligne_s):
+            # Nettoyer
+            nom = re.sub(r'\s+', ' ', ligne_s).strip()
+            if len(nom) <= 80 and not re.search(r'\d{5,}', nom):
+                return nom
+
+    # 2b. Chercher le nom de l'entreprise dans les 8 premières lignes significatives
+    # (avant le tableau des articles qui commence à "Désignation")
+    _LIGNES_TABLEAU = re.compile(
+        r'\b(?:d[eé]signation|description|article|qte|qt[eé]|prix|total|tva|montant|designation)\b',
+        re.IGNORECASE
+    )
+    _LIGNES_SKIP = re.compile(
+        r'(?:rue|avenue|blvd|boulevard|tel|tél|fax|mail|@|mf\s*:|matricule|r\.c\.s|siret|rib|iban|page)'
+        r'|\d{8,}',
+        re.IGNORECASE
+    )
+    _MOTS_ARTICLE = re.compile(
+        r'\b(?:SOURIS|CLAVIER|ECRAN|IMPRIMANTE|CHARGEUR|CARTES|MEMOIRES|BOITIER|CABLES?|CABLES?)\b',
+        re.IGNORECASE
+    )
+    lignes_brutes = texte.splitlines()
+    nb_lignes_ok = 0
+    for ligne in lignes_brutes:
+        ligne_s = ligne.strip()
+        if not ligne_s:
+            continue
+        # Arrêter dès qu'on entre dans le tableau des articles
+        if _LIGNES_TABLEAU.search(ligne_s):
+            break
+        nb_lignes_ok += 1
+        if nb_lignes_ok > 10:
+            break
+        # Ignorer lignes d'adresse / téléphone / email
+        if _LIGNES_SKIP.search(ligne_s):
+            continue
+        # Ignorer noms d'articles
+        if _MOTS_ARTICLE.search(ligne_s):
+            continue
+        # Ignorer lignes trop courtes ou purement numériques
+        if len(ligne_s) < 3 or re.match(r'^[\d\s\-._|/]+$', ligne_s):
+            continue
+        # Ignorer lignes avec des caractères OCR parasites (─, |, =, etc.)
+        lettres = re.sub(r'[^A-Za-zÀ-ÿ0-9\-]', '', ligne_s)
+        if len(lettres) < 2:
+            continue
+        # Nettoyer la ligne : supprimer les parasites de début
+        ligne_propre = re.sub(r'^[^A-Za-zÀ-ÿ]+', '', ligne_s).strip()
+        if not ligne_propre or len(ligne_propre) < 2:
+            continue
+        # Ignorer les mots-clés de document
+        if re.match(
+            r'^(facture|invoice|devis|bon\s*de|n°|date|client|fournisseur)$',
+            ligne_propre.lower()
+        ):
+            continue
+        return ligne_propre[:80]
+
+    # 3. Chercher les lignes en MAJUSCULES (seulement dans les 12 premières lignes
+    #    AVANT le tableau des articles)
+    idx_tableau = len(lignes_brutes)
+    for i, l in enumerate(lignes_brutes[:12]):
+        if _LIGNES_TABLEAU.search(l):
+            idx_tableau = i
+            break
+
+    for ligne in lignes_brutes[:idx_tableau]:
+        ligne_s = ligne.strip()
+        if not ligne_s or len(ligne_s) < 3:
+            continue
+        mots_maj = re.findall(r'\b[A-ZÀ-Ü]{2,}\b', ligne_s)
+        texte_maj = " ".join(mots_maj)
+        if len(texte_maj) >= 3 and not re.search(
+            r'\b(?:FACTURE|INVOICE|DATE|TVA|TOTAL|MONTANT|DESIGNATION|QTE|PRIX|CLIENT|ADRESSE|TEL|FAX|PAGE|TIMBRE|FODEC)\b',
+            texte_maj
+        ) and not _MOTS_ARTICLE.search(texte_maj):
+            return texte_maj
+
+    return None
 
 
 # ──────────────────────────────────────────────────────────────────────

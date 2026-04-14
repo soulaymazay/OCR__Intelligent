@@ -29,7 +29,24 @@ TYPE_PATTERNS = {
         r"\bdevis\b", r"\bquotation\b", r"\bproforma\b", r"\boffre\s+de\s+prix\b"
     ],
     "bon_livraison": [
-        r"\bbon\s+de\s+livraison\b", r"\bdelivery\s+note\b", r"\bbl[-\s]?\d+\b"
+        r"\bbon\s+de\s+livraison\b", r"\bdelivery\s+note\b", r"\bbl[-\s]?\d+\b",
+        r"\bbon\s*livraison\b",          # OCR erreur : "de" absent
+        r"\blivraison\s+n[°o]\b",        # "Livraison N°"
+        r"\bbordereau\s+de\s+livraison\b",
+        r"\bvisa\s+du\s+(?:client|fournisseur)\b",  # section signature BL
+        r"\blivr[eé]\s+le\b",            # "Livré le :"
+        r"\bre[çc]u\s+le\b",             # "Reçu le :"
+        r"\b[eé]mis\s+par\b",            # "Émis par :"
+        r"\blieu\s*[:\-]",               # "Lieu :"
+        r"\bcontact\s+client\b",         # "Contact client :"
+        r"\bnuméro\s+de\s+client\b",     # "Numéro de client :"
+        r"\bquantit[eé]s?\s+command[eé]es?\b",  # tableau BL
+    ],
+    # Documents NON acceptés — détectés pour être rejetés
+    "cheque": [
+        r"\bch[eè]que\b", r"\bpayez\s+contre\b", r"\bpayable\s+[àa]\b",
+        r"\bcinq\s+mille\b", r"\bmille\s+euro\b", r"\bbillet\b",
+        r"\bvirement\b", r"\border\s+of\b", r"\bpay\s+to\b",
     ],
 }
 
@@ -60,9 +77,12 @@ CHAMP_PATTERNS = {
 
     # ── Numéros de documents ──────────────────────────────────────────
     "numero_facture": [
-        r"(?:facture|invoice)\s*n[°o]?\.?\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
-        r"n[°o]?\s*facture\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
-        r"\bfac[-\s]?(\d{3,})\b",
+        r"(?:facture|invoice)\s*n[°o]\s*[:\-]?\s*(\d{1,10})",
+        r"(?:facture|invoice)\s*n[°o]?\.?\s*[:\-]?\s*([A-Za-z0-9][\w\-/]{1,20})(?=\s|$|[,;.|])",
+        r"n[°o]?\s*(?:facture|fact\.?)\s*[:\-]?\s*([A-Za-z0-9][\w\-/]{1,20})",
+        r"\bfac[-\s]?(\d{2,})\b",
+        r"\bN[°o]\s*[:\-]?\s*(\d{1,10})",
+        r"(?:facture)\s+(?:N[°o]\s*)?[:\-]?\s*(\d{1,10})",
     ],
     "numero_commande": [
         r"(?:bon\s*de\s*commande|purchase\s*order|commande)\s*n[°o]?\.?\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
@@ -80,8 +100,9 @@ CHAMP_PATTERNS = {
     # ── Dates ─────────────────────────────────────────────────────────
     "date": [
         r"(?:date\s*(?:de\s*)?(?:facture|émission|document)?)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
-        r"(?:^|\s)(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})(?:\s|$)",
-        r"(\d{1,2}\s+(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4})",
+        r"(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})",
+        r"(\d{1,2}\s+(?:janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[ée]cembre)\s+\d{4})",
+        r"(?:date)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
     ],
     "echeance": [
         r"(?:échéance|echeance|date\s*limite|due\s*date|payer\s*avant)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
@@ -95,12 +116,12 @@ CHAMP_PATTERNS = {
 
     # ── Parties ───────────────────────────────────────────────────────
     "fournisseur": [
-        r"(?:fournisseur|vendor|supplier|émis\s*par|issued\s*by|de\s*la\s*part\s*de)\s*[:\-]?\s*([A-ZÀ-Ü][^\n]{3,60})",
-        r"(?:raison\s*sociale|company\s*name)\s*[:\-]?\s*([A-ZÀ-Ü][^\n]{3,60})",
+        r"(?:fournisseur|vendor|supplier|émis\s*par|issued\s*by|de\s*la\s*part\s*de)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
+        r"(?:raison\s*sociale|soci[ée]t[ée]|company\s*name|entreprise)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
     ],
     "client": [
-        r"(?:client|customer|bill\s*to|facturer\s*à|destinataire|adresser\s*à)\s*[:\-]?\s*([A-ZÀ-Ü][^\n]{3,60})",
-        r"(?:vendu\s*à|sold\s*to)\s*[:\-]?\s*([A-ZÀ-Ü][^\n]{3,60})",
+        r"(?:client|customer|bill\s*to|facturer\s*[àa]|destinataire|adresser\s*[àa])\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
+        r"(?:vendu\s*[àa]|sold\s*to)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
     ],
 
     # ── Références ────────────────────────────────────────────────────

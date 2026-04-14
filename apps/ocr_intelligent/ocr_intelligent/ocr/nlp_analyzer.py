@@ -56,6 +56,11 @@ _CONTEXTE = {
         "mots": [
             "bon de livraison", "delivery note", "livré à", "expédié",
             "bordereau d'expédition", "bl n°",
+            "bon livraison", "livraison n°", "bordereau de livraison",
+            "visa du client", "visa du fournisseur",
+            "reçu le", "livré le", "émis par",
+            "quantités commandées", "lieu :", "contact client",
+            "numéro de client",
         ],
         "poids": 1.0,
     },

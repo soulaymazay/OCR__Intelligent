@@ -240,13 +240,28 @@ const OCRForm = {
         }
 
         // 2. Résoudre les champs Link (Fournisseur, etc.)
-        OCRForm._normaliser_liens(frm, header_batch).then(({ batch_valide, avertissements }) => {
+        OCRForm._normaliser_liens(frm, header_batch).then(({ batch_valide, avertissements, liens_manquants }) => {
 
-            if (avertissements.length) {
-                frappe.show_alert({
-                    message: avertissements.join("<br>"),
-                    indicator: "orange"
-                }, 5);
+            // Si des liens obligatoires sont introuvables, bloquer la sauvegarde
+            // et proposer de créer les enregistrements manquants
+            if (liens_manquants.length) {
+                const lien = liens_manquants[0];          // Le plus important = le 1er
+                const route_creation = `/app/${frappe.router.slug(lien.doctype)}/new-${frappe.router.slug(lien.doctype)}-1`;
+
+                frappe.msgprint({
+                    title: __("Enregistrement introuvable"),
+                    indicator: "orange",
+                    message: __(
+                        "<b>{0}</b> (détecté par OCR) n'existe pas dans <b>{1}</b>.<br><br>" +
+                        "Les autres champs ont été appliqués.<br>" +
+                        "👉 <a href='{2}' target='_blank'>Créer le {1}</a>, " +
+                        "puis revenez sélectionner le fournisseur manuellement.",
+                        [lien.valeur, lien.doctype, route_creation]
+                    ),
+                });
+
+                // Forcer enregistrer=false : on applique mais on ne sauvegarde pas
+                enregistrer = false;
             }
 
             // 3. Injecter les champs d'en-tête
@@ -362,6 +377,8 @@ const OCRForm = {
     _normaliser_liens(frm, batch) {
         const out = { ...batch };
         const warnings = [];
+        // { fieldname, doctype, valeur_ocr } pour chaque lien introuvable
+        const liens_manquants = [];
         const checks = [];
 
         for (const [fn, val] of Object.entries(batch)) {
@@ -372,7 +389,8 @@ const OCRForm = {
                 OCRForm._resoudre_valeur_link(df.options, String(val)).then((resolved) => {
                     if (!resolved) {
                         delete out[fn];
-                        warnings.push(__("Fournisseur: {0} n'existe pas", [val]));
+                        liens_manquants.push({ fieldname: fn, doctype: df.options, valeur: val });
+                        warnings.push(__("'{0}' introuvable dans {1}", [val, df.options]));
                     } else if (resolved !== val) {
                         out[fn] = resolved;
                     }
@@ -383,6 +401,7 @@ const OCRForm = {
         return Promise.all(checks).then(() => ({
             batch_valide: out,
             avertissements: warnings,
+            liens_manquants,
         }));
     },
 
@@ -420,28 +439,49 @@ const OCRForm = {
     // ── Créer la ligne article automatiquement ──────────────────────
     _creer_ligne_article(frm, montants, vals) {
         const raw = montants.net_total || montants.grand_total || 0;
-        const rate = typeof raw === "number" ? raw : (parseFloat(String(raw).replace(/\s/g, "").replace(",", ".")) || 0);
+        const rate = typeof raw === "number" ? raw
+            : (parseFloat(String(raw).replace(/\s/g, "").replace(",", ".")) || 0);
 
-        const bill_no  = vals.bill_no || frm.doc.bill_no || "";
-        const supplier = vals.supplier || frm.doc.supplier || "";
-        const item_name = ("Facture OCR " + bill_no + " " + supplier).trim() || "Article OCR";
+        const bill_no   = vals.bill_no  || frm.doc.bill_no  || "";
+        const supplier  = vals.supplier || frm.doc.supplier || "";
+        const desc = ("Facture OCR " + bill_no + " " + supplier).trim() || "Article OCR";
 
-        // Vider les articles existants
-        frm.doc.items = [];
+        // Résoudre item_code et uom depuis la DB
+        return frappe.db.exists("Item", "Article OCR").then((exists) => {
+            const item_code = exists ? "Article OCR" : null;
+            if (!item_code) {
+                // Article inexistant → ligne vide, l'utilisateur remplira manuellement
+                frm.doc.items = [];
+                frm.refresh_field("items");
+                frappe.show_alert({
+                    message: __("Article 'Article OCR' introuvable. Ajoutez la ligne article manuellement."),
+                    indicator: "orange"
+                }, 6);
+                return;
+            }
 
-        frm.add_child("items", {
-            item_name        : item_name,
-            description      : item_name,
-            qty              : 1,
-            rate             : rate,
-            amount           : rate,
-            uom              : "Unité",
-            conversion_factor: 1,
-            stock_qty        : 1,
+            return frappe.db.exists("UOM", "Unité").then((uom_exists) => {
+                const uom = uom_exists ? "Unité" : "Nos";
+
+                // Vider les articles existants
+                frm.doc.items = [];
+
+                const row = frm.add_child("items", {
+                    item_code        : item_code,
+                    item_name        : desc,
+                    description      : desc,
+                    qty              : 1,
+                    rate             : rate,
+                    amount           : rate,
+                    uom              : uom,
+                    stock_uom        : uom,
+                    conversion_factor: 1,
+                    stock_qty        : 1,
+                });
+
+                frm.refresh_field("items");
+            });
         });
-
-        frm.refresh_field("items");
-        return Promise.resolve();
     },
 
     // ── Forcer expense_account sur toutes les lignes articles ───────

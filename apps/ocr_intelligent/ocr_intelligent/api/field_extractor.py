@@ -128,15 +128,43 @@ def _pipeline_paiement(
     # ── Validation des valeurs selon les types Frappe ─────────────────────────
     meta           = frappe.get_meta(target_doctype)
     target_fields  = _get_target_fields(meta)
+    # Construire form_fields_frappe : clés OCR converties en clés Frappe pour le fallback
+    _MAPPING_COMBINE = {
+        "numero_cheque":    "reference_no",
+        "date_cheque":      "reference_date",
+        "cheque_date":      "reference_date",
+        "amount":           "paid_amount",
+        "banque":           "bank",
+        "beneficiaire":     "party",
+        "titulaire_compte": "account_holder_name",
+        "rib":              "bank_account",
+        "numero_traite":    "reference_no",
+        "date_echeance":    "reference_date",
+        "tire":             "bank",
+        "tireur":           "party",
+        "domiciliation":    "custom_domiciliation",
+        "date_emission":    "custom_issue_date",
+        "due_date":         "reference_date",
+        "issue_date":       "custom_issue_date",
+        "drawer":           "party",
+        "drawee":           "bank",
+        "draft_number":     "reference_no",
+    }
+    form_fields_frappe = {}
+    for _ocr_key, _frappe_key in _MAPPING_COMBINE.items():
+        _val = form_fields.get(_ocr_key)
+        if _val not in (None, "", 0, 0.0) and _frappe_key not in form_fields_frappe:
+            form_fields_frappe[_frappe_key] = _val
+
     matched_fields = {}
     unmatched      = []
 
     for fieldname, field_info in target_fields.items():
         valeur = champs_remplis.get(fieldname)
 
-        # Fallback : chercher dans form_fields si pas dans champs_remplis
+        # Fallback : chercher dans form_fields converti en clés Frappe
         if valeur is None:
-            valeur = form_fields.get(fieldname)
+            valeur = form_fields_frappe.get(fieldname)
 
         if valeur is not None and valeur != "" and valeur != 0.0:
             validated, warning = _validate_field_value(

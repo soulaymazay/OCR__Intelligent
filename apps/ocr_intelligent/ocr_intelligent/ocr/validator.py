@@ -12,7 +12,8 @@ class Validateur:
     CHAMPS_OBLIGATOIRES = {
         "facture":       ["numero_facture", "date", "fournisseur", "montant_ttc"],
         "bon_livraison": ["numero_bl", "date_livraison", "fournisseur"],
-        "cheque":        ["numero_cheque", "montant", "date"],
+        "cheque":        ["numero_cheque", "amount", "date_cheque"],
+        "traite":        ["amount", "date_echeance"],
         "bon_commande":  ["numero_commande", "date_commande", "fournisseur"],
         "inconnu":       [],
     }

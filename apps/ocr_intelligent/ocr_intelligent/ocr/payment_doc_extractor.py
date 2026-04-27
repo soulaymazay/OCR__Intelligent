@@ -298,7 +298,7 @@ def _parser_montant(val) -> float | None:
         parts = s.split(".")
         # "2.520" : point unique avec 3 décimales → milliers ou décimal ?
         # Si partie entière ≥ 2 chiffres et exactement 3 décimales → milliers (tunisien)
-        if len(parts) == 2 and len(parts[1]) == 3 and parts[0].isdigit() and len(parts[0]) >= 2:
+        if len(parts) == 2 and len(parts[1]) == 3 and parts[0].isdigit() and len(parts[0]) >= 1:
             # "2.520" → 2520  |  "520.000" → 520.000 (déjà décimal correct)
             # Heuristique : si entier < 1000 et 3 décimales → décimal tunisien
             try:
@@ -1198,7 +1198,6 @@ def analyser_document_paiement(
 
         dates = _extraire_dates_brutes(texte_traite)
         if not dates:
-            from .payment_doc_extractor import _extraire_dates_image_cheque  # évite circular
             dates = _extraire_dates_image_cheque(chemin_img)
 
         if not dates:

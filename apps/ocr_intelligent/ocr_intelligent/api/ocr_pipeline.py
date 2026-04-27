@@ -330,7 +330,12 @@ def _executer_pipeline_job(chemin_tmp, nom_fichier, ext,
             })
             return
 
-        if source_doctype == "Payment Entry":
+        from ocr_intelligent.ocr.payment_doc_extractor import _normaliser_payment_method as _norm_pm
+        _is_payment = (
+            source_doctype == "Payment Entry"
+            or bool(payment_method and _norm_pm(payment_method))
+        )
+        if _is_payment:
             _executer_pipeline_payment_entry(
                 chemin_tmp=chemin_tmp,
                 texte_brut=texte_brut,
@@ -797,6 +802,42 @@ def _executer_pipeline_payment_entry(chemin_tmp, texte_brut, score,
         })
         return
 
+    # Créer / mettre à jour le OCR Document pour que field_extractor puisse le relire
+    tous_champs  = {**form_fields, **champs_remplis}
+    ocr_doc_name = None
+    for variante in _variantes_nom(nom_fichier):
+        existants = frappe.get_list(
+            "OCR Document",
+            filters={"document_name": variante},
+            fields=["name"],
+            limit=1,
+        )
+        if existants:
+            ocr_doc_name = existants[0]["name"]
+            break
+
+    statut = "Validé" if champs_remplis else "Validation requise"
+    if ocr_doc_name:
+        frappe.db.set_value("OCR Document", ocr_doc_name, {
+            "extracted_field":  json.dumps(tous_champs, ensure_ascii=False, indent=2),
+            "confidence_score": score,
+            "status":           statut,
+        })
+    else:
+        ocr_doc_obj = frappe.get_doc({
+            "doctype":          "OCR Document",
+            "document_name":    nom_fichier,
+            "uploaded_by":      uploaded_by,
+            "confidence_score": score,
+            "extracted_text":   texte_brut,
+            "extracted_field":  json.dumps(tous_champs, ensure_ascii=False, indent=2),
+            "status":           statut,
+        })
+        ocr_doc_obj.insert(ignore_permissions=True)
+        ocr_doc_name = ocr_doc_obj.name
+
+    frappe.db.commit()
+
     _stocker_resultat(job_token, {
         "success":             True,
         "type_document":       type_detecte,
@@ -807,6 +848,7 @@ def _executer_pipeline_payment_entry(chemin_tmp, texte_brut, score,
         "date_cheque_retenue": analyse.get("date_cheque_retenue"),
         "score_confiance":     score,
         "nom_fichier":         nom_fichier,
+        "ocr_document_id":     ocr_doc_name,
         "message": "{} champ(s) extrait(s) depuis le document {} (score OCR : {}%)".format(
             len(champs_remplis), type_detecte, score
         ),

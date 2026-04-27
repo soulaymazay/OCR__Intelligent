@@ -20,5 +20,8 @@ app_include_js = [
 doc_events = {
     "File": {
         "after_insert": "ocr_intelligent.api.auto_create_document.auto_create_ocr_document"
+    },
+    "Payment Entry": {
+        "validate": "ocr_intelligent.api.validators.validate_cheque_date"
     }
 }

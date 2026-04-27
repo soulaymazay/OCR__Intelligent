@@ -47,13 +47,15 @@ SEUIL_TEXTE_PRESENT    = 0.25   # Présence minimale du mot dans le texte OCR
 
 MAPPING_CHAMPS = {
     "facture": {
-        "numero_facture": "bill_no",
-        "date":           "bill_date",
-        "fournisseur":    "supplier",
-        "montant_ht":     "net_total",
-        "montant_tva":    "total_taxes_and_charges",
-        "montant_ttc":    "grand_total",
-        "date_echeance":  "due_date",
+        "numero_facture":  "bill_no",
+        "date":            "bill_date",
+        "fournisseur":     "supplier",
+        "montant_ht":      "net_total",
+        "montant_tva":     "total_taxes_and_charges",
+        "montant_ttc":     "grand_total",
+        "date_echeance":   "due_date",
+        "mode_paiement":   "payment_terms_template",
+        "numero_commande": "po_no",
     },
     "bon_livraison": {
         "numero_bl":      "lr_no",
@@ -63,13 +65,31 @@ MAPPING_CHAMPS = {
     "cheque": {
         "numero_cheque":  "reference_no",
         "montant":        "paid_amount",
+        "date_cheque":    "reference_date",
+        "cheque_date":    "reference_date",
         "date":           "reference_date",
         "banque":         "bank",
+        "beneficiaire":   "party",
+    },
+    "traite": {
+        "montant":        "paid_amount",
+        "amount":         "paid_amount",      # alias payment_doc_extractor
+        "date_echeance":  "reference_date",
+        "due_date":       "reference_date",   # alias normalisé
+        "date_emission":  "reference_date",   # fallback si échéance absente
+        "issue_date":     "reference_date",   # alias normalisé
+        "tireur":         "party",
+        "drawer":         "party",            # alias normalisé
+        "tire":           "bank",
+        "drawee":         "bank",             # alias normalisé
+        "numero_traite":  "reference_no",
+        "draft_number":   "reference_no",     # alias normalisé
     },
     "bon_commande": {
         "numero_commande": "po_no",
         "date_commande":   "transaction_date",
         "fournisseur":     "supplier",
+        "montant_ttc":     "grand_total",
     },
     "inconnu": {
         "date":           "posting_date",
@@ -267,7 +287,7 @@ def _charger_candidats(nom_fichier):
             filters={"document_name": nom_fichier},
             fields=[
                 "name", "document_name",
-                "extracted_field",          # ✅ FIX 1 : singulier, aligné sur le doctype
+                "extracted_field",
                 "extracted_text", "confidence_score", "status"
             ],
             order_by="confidence_score desc",
@@ -282,7 +302,7 @@ def _charger_candidats(nom_fichier):
         champs_parsed = {}
 
         try:
-            raw = doc.get("extracted_field") or "{}"   # ✅ FIX 1 : singulier
+            raw = doc.get("extracted_field") or "{}"
             champs_parsed = json.loads(raw)
         except Exception:
             champs_parsed = {}
@@ -301,6 +321,8 @@ def _detecter_type(champs):
         return "facture"
     if any(c in cles for c in ["numero_bl", "date_livraison"]):
         return "bon_livraison"
+    if any(c in cles for c in ["numero_traite", "tireur", "tire"]):
+        return "traite"
     if any(c in cles for c in ["numero_cheque", "banque"]):
         return "cheque"
     if any(c in cles for c in ["numero_commande", "date_commande"]):
@@ -309,7 +331,7 @@ def _detecter_type(champs):
 
 
 # ──────────────────────────────────────────────────────────────────────
-# SCORE DE COMPATIBILITÉ  (FIX 2 + FIX 3)
+# SCORE DE COMPATIBILITE
 # ──────────────────────────────────────────────────────────────────────
 
 def _normaliser_montant(val):
@@ -353,7 +375,7 @@ def _score_compatibilite(champ_ocr, valeur_ocr, texte_brut, valeur_formulaire=No
     if val_lower in texte_lower:
         score += 0.4
     else:
-        # ── FIX 2 : normalisation montants ───────────────────────────
+        # ── Normalisation des montants ───────────────────────────────
         est_montant = any(k in champ_ocr.lower() for k in ["montant", "total", "ttc", "ht", "tva"])
         est_date    = "date" in champ_ocr.lower()
 
@@ -372,7 +394,7 @@ def _score_compatibilite(champ_ocr, valeur_ocr, texte_brut, valeur_formulaire=No
                     score += 0.3
 
         elif est_date:
-            # ── FIX 3 : tolérance sur dates tronquées ────────────────
+            # ── Tolerance sur dates tronquees ────────────────────────
             val_norm   = _normaliser_date(val)
             texte_norm = re.sub(r'[\s]', '', texte_lower)
             # Comparer les 8 premiers caractères (JJ/MM/AAAA → JJ/MM/AA)

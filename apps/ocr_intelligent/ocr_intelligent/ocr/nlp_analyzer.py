@@ -30,6 +30,13 @@ except ImportError:
 # ──────────────────────────────────────────────────────────────────────
 
 _CONTEXTE = {
+    "facture_vente": {
+        "mots": [
+            "facture de vente",
+            "facture client",
+        ],
+        "poids": 2.0,
+    },
     "facture": {
         "mots": [
             "facture", "invoice", "facturation", "à payer", "net à payer",

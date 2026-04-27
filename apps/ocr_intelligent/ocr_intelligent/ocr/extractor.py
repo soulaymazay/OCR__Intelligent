@@ -1,14 +1,6 @@
 """
 extractor.py — Groupe Bayoudh Metal
 Extracteur Intelligent v2
-
-CORRECTIONS v2 :
-  1. Patterns de détection plus tolérants (texte OCR tronqué/bruité)
-  2. Regex fournisseur limité à 40 chars (évite pollution \nDate)
-  3. Regex date accepte 3 chiffres pour l'année (OCR tronqué : 202x → 202)
-  4. Détection numéro facture élargie (uméro, umero, n°, num, #)
-  5. Montant TTC détecté même sans mot-clé "TTC" (heuristique = montant le plus grand)
-  6. Nettoyage du fournisseur (suppression suffixes parasites)
 """
 
 import re
@@ -44,7 +36,7 @@ class ExtracteurIntelligent:
         scores = {"facture": 0, "bon_livraison": 0, "cheque": 0, "bon_commande": 0}
 
         mots = {
-            # FIX 1 : ajout de variantes tronquées par l'OCR
+            # Variantes OCR tronquées/bruitees.
             "facture": [
                 "facture", "invoice", "fact.", "فاتورة",
                 "montant ttc", "tva", "net à payer",
@@ -83,11 +75,11 @@ class ExtracteurIntelligent:
 
     def extraire_dates(self):
         patterns = [
-            r'\b(\d{2}[/-]\d{2}[/-]\d{4})\b',         # JJ/MM/AAAA
-            r'\b(\d{4}[/-]\d{2}[/-]\d{2})\b',         # AAAA-MM-JJ
-            r'\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})\b',   # JJ/MM/AA ou JJ/MM/AAAA
-            # FIX 3 : tolérance 3 chiffres pour l'année (OCR tronqué)
-            r'\b(\d{2}[/-]\d{2}[/-]\d{3})\b',          # JJ/MM/202 (tronqué)
+            r'\b(\d{2}[/\-.]\d{2}[/\-.]\d{4})\b',         # JJ/MM/AAAA ou JJ.MM.AAAA
+            r'\b(\d{4}[/\-.]\d{2}[/\-.]\d{2})\b',         # AAAA-MM-JJ
+            r'\b(\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4})\b',   # JJ/MM/AA ou JJ.MM.AAAA
+            # Tolérance année sur 3 chiffres (OCR tronqué)
+            r'\b(\d{2}[/\-.]\d{2}[/\-.]\d{3})\b',          # JJ/MM/202 (tronqué)
         ]
 
         dates = []
@@ -116,7 +108,7 @@ class ExtracteurIntelligent:
     def extraire_montants(self):
         patterns = [
             r'(\d{1,3}(?:[\s.]\d{3})*(?:[.,]\d{2}))\s*(?:TND|DT|EUR|€|\$|دينار)?',
-            # FIX 5 : capturer aussi les montants entiers (ex: "4 250" sans décimales)
+            # Capturer aussi les montants entiers (ex: "4 250" sans décimales).
             r'(\d{1,3}(?:\s\d{3})+)(?:\s*(?:TND|DT|EUR|€))?',
         ]
 
@@ -157,7 +149,7 @@ class ExtracteurIntelligent:
             if mt["role"] not in vus_roles:
                 vus_roles[mt["role"]] = mt["valeur"]
 
-        # FIX 5 : heuristique — si montant_ttc absent, le montant le plus élevé = TTC
+        # Heuristique: si TTC absent, prendre le plus grand montant.
         if "montant_ttc" not in vus_roles and montants:
             vus_roles["montant_ttc"] = montants[0]["valeur"]
 
@@ -181,7 +173,7 @@ class ExtracteurIntelligent:
         patterns = [
             r'\b([A-Z]{1,3}[-/]\d{4}[-/]\d+)\b',          # FAC-2024-00142
             r'\b(\d{4}[-/]\d{3,6})\b',                     # 2024-00142
-            # FIX 4 : variantes tronquées par l'OCR pour "numéro"
+            # Variantes OCR tronquées pour "numero".
             r'(?:num[eé]ro|n[°o]\.?|num\.?|r[eé]f\.?|#|uméro|umero|umeéro)\s*'
             r'(?:facture|fact\.?|bl|commande|ch[eè]que)?\s*[:\s]*([A-Z0-9/\-]{3,})',
         ]
@@ -211,7 +203,7 @@ class ExtracteurIntelligent:
 
     def extraire_noms(self):
         patterns = [
-            # FIX 2 : limité à 40 chars, sans capture de \n ni de mots-clés suivants
+            # Limiter la capture fournisseur pour eviter la pollution contextuelle.
             r'(?:fournisseur|supplier|vendeur|vendor)\s*[:\s]+'
             r'([A-ZÀ-Ÿ][A-Za-zÀ-ÿ0-9\s&]{2,38}?)(?=\s*(?:\n|$|MF|RIB|Tél|Tel|Date|Adresse|N°|F:|$))',
 
@@ -226,7 +218,7 @@ class ExtracteurIntelligent:
         for p in patterns:
             for m in re.finditer(p, self.texte, re.IGNORECASE):
                 val = m.group(1).strip()
-                # FIX 6 : nettoyer les suffixes parasites
+                # Nettoyer les suffixes parasites.
                 val = self._nettoyer_nom(val)
                 if not val or len(val) < 3 or val in vus_valeurs:
                     continue
@@ -271,7 +263,7 @@ class ExtracteurIntelligent:
 
     def _nettoyer_nom(self, val):
         """
-        FIX 6 : supprime les suffixes parasites capturés par les regex.
+        Supprime les suffixes parasites captures par les regex.
         Ex: 'ACIER TUNISIE SAR\nDate' → 'ACIER TUNISIE SAR'
         """
         # Couper au premier retour à la ligne
@@ -307,7 +299,7 @@ class ExtracteurIntelligent:
         return "montant"
 
     def _role_reference(self, ctx):
-        # FIX 4 : élargir les mots-clés de détection
+        # Mots-cles elargis pour la detection de reference.
         if any(k in ctx for k in ["facture", "invoice", "fact", "acture", "factue"]):
             return "numero_facture"
         if any(k in ctx for k in ["livraison", "bl ", "b.l"]):

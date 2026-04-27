@@ -9,6 +9,14 @@ Retourne :
     "champs_trouves"  : ["numero_facture", ...],    ← champs avec valeur
     "champs_manquants": ["montant_ht", ...]         ← champs vides (None)
 }
+
+CORRECTIONS v2 :
+  - numero_facture : capture désormais les formats alphanumériques complets
+    (ex: FAC-2024-00142, FACT/2024/001, INV-001, etc.)
+  - montant_ht / tva / montant_ttc : patterns élargis pour "Montant HT :",
+    "TVA (19%) :", "Montant TTC :" tels qu'on les trouve sur les factures TN
+  - Ajout pattern "Montant HT :" et "Montant TTC :" en tête de pattern list
+  - echeance : ajoute alias "Date Échéance" / "Date Echeance"
 """
 
 import re
@@ -30,23 +38,41 @@ TYPE_PATTERNS = {
     ],
     "bon_livraison": [
         r"\bbon\s+de\s+livraison\b", r"\bdelivery\s+note\b", r"\bbl[-\s]?\d+\b",
-        r"\bbon\s*livraison\b",          # OCR erreur : "de" absent
-        r"\blivraison\s+n[°o]\b",        # "Livraison N°"
+        r"\bbon\s*livraison\b",
+        r"\blivraison\s+n[°o]\b",
         r"\bbordereau\s+de\s+livraison\b",
-        r"\bvisa\s+du\s+(?:client|fournisseur)\b",  # section signature BL
-        r"\blivr[eé]\s+le\b",            # "Livré le :"
-        r"\bre[çc]u\s+le\b",             # "Reçu le :"
-        r"\b[eé]mis\s+par\b",            # "Émis par :"
-        r"\blieu\s*[:\-]",               # "Lieu :"
-        r"\bcontact\s+client\b",         # "Contact client :"
-        r"\bnuméro\s+de\s+client\b",     # "Numéro de client :"
-        r"\bquantit[eé]s?\s+command[eé]es?\b",  # tableau BL
+        r"\bvisa\s+du\s+(?:client|fournisseur)\b",
+        r"\blivr[eé]\s+le\b",
+        r"\bre[çc]u\s+le\b",
+        r"\b[eé]mis\s+par\b",
+        r"\blieu\s*[:\-]",
+        r"\bcontact\s+client\b",
+        r"\bnuméro\s+de\s+client\b",
+        r"\bquantit[eé]s?\s+command[eé]es?\b",
     ],
-    # Documents NON acceptés — détectés pour être rejetés
+    "facture_vente": [
+        r"\bfacture\s+de\s+vente\b",
+        r"\bfacture\s+client\b",
+        r"\bfacture\s+(?:de\s+)?v(?:ente)?[-\s]?\d*\b",
+    ],
     "cheque": [
         r"\bch[eè]que\b", r"\bpayez\s+contre\b", r"\bpayable\s+[àa]\b",
         r"\bcinq\s+mille\b", r"\bmille\s+euro\b", r"\bbillet\b",
         r"\bvirement\b", r"\border\s+of\b", r"\bpay\s+to\b",
+    ],
+    "traite": [
+        r"\blettre\s*de\s*change\b",
+        r"\btraite\b",
+        r"\beffet\s*de\s*commerce\b",
+        r"\btireur\b",
+        r"\btiré\b",
+        r"\bdomiciliataire\b",
+        r"\bvaleur\s+en\s+compte\b",
+        r"\bvaleur\s+re[çc]ue\b",
+        r"\baval\b",
+        r"\b[àa]\s+vue\b",
+        r"\bbon\s*pour\s*aval\b",
+        r"\bveuillez\s+payer\b",
     ],
 }
 
@@ -66,6 +92,10 @@ CHAMPS_PAR_TYPE = {
                      "montant_ht", "tva", "montant_ttc"],
     "bon_livraison":["numero_bl", "date", "fournisseur", "client",
                      "reference_commande", "reference_article", "quantite"],
+    "cheque":       ["numero_cheque", "date_cheque", "montant", "banque",
+                     "titulaire_compte", "rib", "beneficiaire", "memo"],
+    "traite":       ["numero_traite", "montant", "date_emission", "date_echeance",
+                     "tireur", "tire", "beneficiaire", "domiciliataire", "banque"],
     "inconnu":      ["date", "fournisseur", "client", "montant_ht", "tva", "montant_ttc"],
 }
 
@@ -76,13 +106,23 @@ CHAMPS_PAR_TYPE = {
 CHAMP_PATTERNS = {
 
     # ── Numéros de documents ──────────────────────────────────────────
+    # CORRECTION : les patterns sont ordonnés du plus spécifique au plus général.
+    # On capture maintenant les formats alphanumériques complets :
+    #   FAC-2024-00142, FACT/2024/001, INV-0042, F-001, etc.
     "numero_facture": [
-        r"(?:facture|invoice)\s*n[°o]\s*[:\-]?\s*(\d{1,10})",
-        r"(?:facture|invoice)\s*n[°o]?\.?\s*[:\-]?\s*([A-Za-z0-9][\w\-/]{1,20})(?=\s|$|[,;.|])",
-        r"n[°o]?\s*(?:facture|fact\.?)\s*[:\-]?\s*([A-Za-z0-9][\w\-/]{1,20})",
+        # Format "Numéro Facture : FAC-2024-00142" (label explicite)
+        r"(?:num[eé]ro\s*(?:de\s*)?facture|n[°o]\s*(?:de\s*)?facture)\s*[:\-]?\s*([A-Za-z0-9][A-Za-z0-9\-/]{1,25})",
+        # Format "Facture N° : FAC-2024-00142"
+        r"(?:facture|invoice)\s*n[°o]?\.?\s*[:\-]?\s*([A-Za-z0-9][A-Za-z0-9\-/]{1,25})(?=\s|$|[,;.|])",
+        # Format "N° : FAC-2024-00142" (label court) — exclure dates pures
+        r"\bN[°o]\s*[:\-]\s*([A-Za-z][A-Za-z0-9\-/]{2,25})",
+        # Format code alphanum seul : FAC-XXXX-YYYYY / FACT-XXXX / F-XXX
+        r"\b((?:FAC|FACT|INV|FACTURE|BILL|FC)[/\-]?\d{2,4}[/\-]?\d{0,6})\b",
+        # Fallback numérique pur si tout le reste échoue
+        r"(?:facture|invoice)\s*n[°o]?\s*[:\-]?\s*(\d{1,10})",
         r"\bfac[-\s]?(\d{2,})\b",
-        r"\bN[°o]\s*[:\-]?\s*(\d{1,10})",
-        r"(?:facture)\s+(?:N[°o]\s*)?[:\-]?\s*(\d{1,10})",
+        # N° seul suivi d'un nombre (en dernier recours)
+        r"(?:^|\s)N[°o]\s*[:\-]?\s*(\d{1,10})(?:\s|$)",
     ],
     "numero_commande": [
         r"(?:bon\s*de\s*commande|purchase\s*order|commande)\s*n[°o]?\.?\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
@@ -99,13 +139,17 @@ CHAMP_PATTERNS = {
 
     # ── Dates ─────────────────────────────────────────────────────────
     "date": [
-        r"(?:date\s*(?:de\s*)?(?:facture|émission|document)?)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
-        r"(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})",
+        # Date facture explicite (prioritaire)
+        r"(?:date\s*(?:de\s*)?(?:facture|[eé]mission|document)?)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+        # Date simple, en excluant les labels d'échéance
+        r"\bdate(?!\s*d['’]?\s*[eé]ch[eé]ance)(?!\s*[eé]ch[eé]ance)(?!\s*limite)\s*[:\-]\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})",
         r"(\d{1,2}\s+(?:janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[uû]t|septembre|octobre|novembre|d[ée]cembre)\s+\d{4})",
-        r"(?:date)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
     ],
     "echeance": [
-        r"(?:échéance|echeance|date\s*limite|due\s*date|payer\s*avant)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+        # CORRECTION : ajout de "Date Échéance" / "Date Echeance" (format facture TN standard)
+        r"(?:date\s*d['’]?\s*[eé]ch[eé]ance|date\s*[eé]ch[eé]ance|[eé]ch[eé]ance|date\s*limite|due\s*date|payer\s*avant)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+        # OCR bruité : nombre placé avant le label (ex: "15/04/2024 Date Echeance")
+        r"(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\s*(?:date\s*d['’]?\s*[eé]ch[eé]ance|date\s*[eé]ch[eé]ance|[eé]ch[eé]ance|date\s*limite|due\s*date)",
     ],
     "validite": [
         r"(?:valide?\s*(?:jusqu[''au]*)?|validity|expir[ae])\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
@@ -142,15 +186,30 @@ CHAMP_PATTERNS = {
     ],
 
     # ── Montants ──────────────────────────────────────────────────────
+    # CORRECTION : ajout de patterns pour "Montant HT :", "Total HT :" et
+    #              formats tunisiens avec DT / TND en fin de ligne.
+    #              Chaque pattern tente de capturer uniquement le nombre (sans l'unité).
     "montant_ht": [
-        r"(?:total\s*h\.?t\.?|montant\s*h\.?t\.?|sous[-\s]?total|hors\s*taxe|subtotal|net\s*amount)\s*[:\-]?\s*([\d\s.,]+\s*(?:€|\$|TND|DT)?)",
+        # "Montant HT : 5 950.000 DT" ou "Montant HT : 5 950,000 DT"
+        r"(?:montant\s*h\.?t\.?)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
+        # "Total HT : ..."
+        r"(?:total\s*h\.?t\.?|hors\s*taxe|sous[-\s]?total|subtotal|net\s*amount)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
+        # "Base imposable ..."
+        r"(?:base\s*imposable|net\s*ht)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
     ],
     "tva": [
-        r"(?:tva|t\.v\.a\.?|vat|taxe)\s*(?:\(?\d+\s*%\)?)?\s*[:\-]?\s*([\d\s.,]+\s*(?:€|\$|TND|DT)?)",
+        # "TVA (19%) : 1 130.500 DT"
+        r"(?:tva|t\.v\.a\.?|vat)\s*(?:\(?\s*\d+[\s.,]*%\s*\)?)?\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
+        # "Taxe ..."
+        r"(?:taxe)\s*(?:\(?\s*\d+[\s.,]*%\s*\)?)?\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
     ],
     "montant_ttc": [
-        r"(?:total\s*t\.?t\.?c\.?|montant\s*t\.?t\.?c\.?|total\s*(?:à\s*payer|due|general)|net\s*à\s*payer|amount\s*due)\s*[:\-]?\s*([\d\s.,]+\s*(?:€|\$|TND|DT)?)",
-        r"(?:total)\s*[:\-]?\s*([\d\s.,]+\s*(?:€|\$|TND|DT))",
+        # "Montant TTC : 7 080.500 DT"
+        r"(?:montant\s*t\.?t\.?c\.?)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
+        # "Total TTC / net à payer / amount due"
+        r"(?:total\s*t\.?t\.?c\.?|total\s*(?:à\s*payer|due|general)|net\s*à\s*payer|amount\s*due)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:€|\$|TND|DT))?)",
+        # Dernier recours : "Total : 7 080.500 DT"  (mais jamais avant les patterns ci-dessus)
+        r"(?:total)\s*[:\-]\s*([\d\s.,]+\s*(?:€|\$|TND|DT))",
     ],
 
     # ── Paiement ──────────────────────────────────────────────────────
@@ -159,6 +218,66 @@ CHAMP_PATTERNS = {
     ],
     "rib_iban": [
         r"(?:rib|iban|compte\s*bancaire|bank\s*account)\s*[:\-]?\s*([A-Z]{2}\d{2}[\w\s]{10,30}|\d[\d\s]{15,30})",
+    ],
+
+    # ── Chèque ────────────────────────────────────────────────────────
+    "numero_cheque": [
+        r"(?:n[°o]?\s*(?:du\s*)?ch[eè]que|ch[eè]que\s*n[°o]?)\s*[:\-]?\s*([0-9]{4,12})",
+        r"(?:numéro|num\.?|ref\.?)\s*ch[eè]que\s*[:\-]?\s*([0-9]{4,12})",
+        r"\b(0[0-9]{5,11})\b",
+    ],
+    "date_cheque": [
+        r"(?:date\s*(?:du\s*ch[eè]que)?|tunis\s*,?\s*le|\ble\b)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+        r"(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4})",
+    ],
+    "titulaire_compte": [
+        r"(?:titulaire|account\s*holder|compte\s*de)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
+        r"(?:tiré\s+sur\s+le\s+compte\s+de)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
+    ],
+    "beneficiaire": [
+        r"(?:[àa]\s+l[''']ordre\s+de|pay(?:able)?\s+to|bénéficiaire|ordre\s+de)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,70})",
+        r"(?:payer\s+[àa]|veuillez\s+payer\s+[àa])\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,70})",
+    ],
+    "montant": [
+        r"(?:montant|somme(?:\s+de)?|la\s+somme\s+de|sum\s+of|amount)\s*[:\-]?\s*([\d\s.,]+(?:\s*(?:TND|DT|dinars?|euros?|€))?)",
+        r"\*+([\d\s.,]+)\*+",
+        r"([\d\s.,]{4,})\s*(?:TND|DT|dinars?)",
+    ],
+    "banque": [
+        r"(?:banque|bank|établissement|tiré\s+sur)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{2,50})",
+        r"\b(STB|BNA|BIAT|UIB|ATB|BT|BH|Zitouna|QNB|UBCI|ABC|CIB|BFT|Attijari|Wafa|Amen)\b",
+    ],
+    "rib": [
+        r"(?:rib|compte)\s*[:\-]?\s*(\d[\d\s]{14,29})",
+        r"(\d{2}\s*\d{3}\s*\d{3,5}\s*\d{3,13}\s*\d{2})",
+    ],
+    "memo": [
+        r"(?:objet|memo|motif|pour|réf\.?|ref\.?)\s*[:\-]?\s*([^\n]{3,80})",
+    ],
+
+    # ── Traite (Lettre de Change) ──────────────────────────────────────
+    "numero_traite": [
+        r"(?:n[°o]?\s*(?:de\s*(?:la\s*)?)?traite|traite\s*n[°o]?|n[°o]?\s*(?:lettre|effet))\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
+        r"(?:référence|réf\.?|ref\.?)\s*[:\-]?\s*([A-Z0-9][\w\-/]{1,20})",
+        r"\b(T[-\s]?\d{4}[-\s]\d{2,6})\b",
+    ],
+    "date_emission": [
+        r"(?:date\s*d[''']?[eé]mission|émis(?:e)?\s*le|date\s*(?:du\s*)?document|fait\s*le)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+    ],
+    "date_echeance": [
+        r"(?:date\s*d[''']?éch[eé]ance|éch[eé]ance|due\s*date|payable\s*le|à\s*payer\s*le)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+        r"(?:écheance|echeance)\s*[:\-]?\s*(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})",
+    ],
+    "tireur": [
+        r"(?:tireur|drawer|émis\s*par|souscripteur)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,70})",
+    ],
+    "tire": [
+        r"(?:tiré|drawee|débiteur)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,70})",
+        r"\b(STB|BNA|BIAT|UIB|ATB|BT|BH|Zitouna|QNB|UBCI|ABC|CIB|BFT|Attijari|Wafa|Amen)\b",
+    ],
+    "domiciliataire": [
+        r"(?:domiciliataire|domiciliation|banque\s+dom\.?)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
+        r"(?:agence)\s*[:\-]?\s*([A-Za-zÀ-ü][^\n]{3,60})",
     ],
 }
 
@@ -182,10 +301,6 @@ def detecter_type_document(texte: str) -> str:
 
 
 def _est_faux_positif_partie(valeur: str) -> bool:
-    """
-    Filtre les faux positifs fréquents dans les tableaux de taxes.
-    Ex: FODEC, Base TVA, Timbre fiscal, Total taxes...
-    """
     v = (valeur or "").strip().lower()
     if not v:
         return True
@@ -198,11 +313,47 @@ def _est_faux_positif_partie(valeur: str) -> bool:
     if any(m in v for m in mots_interdits):
         return True
 
-    # Chaîne surtout numérique/punctuation → pas une partie prenante
     if re.fullmatch(r"[\d\s\W_]+", v):
         return True
 
     return False
+
+
+_STOP_PARTIE_RE = re.compile(
+    r'\s*[|/\\]'
+    r'|\s+\d{1,2}[\s]*/[\s]*\d{1,2}[\s]*/[\s]*\d{2,4}'
+    r'|\s+\d{1,2}[-.]\d{1,2}[-.]\d{2,4}'
+    r'|\s*,\s*(?:Tunis|Sfax|Sousse|Monastir|Bizerte|Nabeul|Kairouan|Gab[eè]s|Ariana|Ben\s*Arous)'
+    r'|\s+(?:Zone|Avenue|Rue|Route|Blvd|Boulevard|BP\b|Tel|T[eé]l|Fax|Email|Lot\b|Facture\b|Date\b)',
+    re.IGNORECASE
+)
+
+
+def _nettoyer_nom_partie(valeur: str) -> str:
+    m = _STOP_PARTIE_RE.search(valeur)
+    if m:
+        valeur = valeur[:m.start()]
+    m_form = re.search(
+        r'\b(?:SARL|SA\b|SUARL|SAS\b|EURL|SNC|GIE|CORP|LTD|LLC|INC)\b',
+        valeur, re.IGNORECASE
+    )
+    if m_form:
+        valeur = valeur[:m_form.end()]
+    return valeur.strip(" .,;:|")
+
+
+def _nettoyer_montant(valeur: str) -> str:
+    """
+    Nettoie une valeur de montant extraite par OCR :
+    - Supprime le suffixe unité (DT, TND, €, $)
+    - Normalise les espaces
+    CORRECTION : évite de supprimer les chiffres significatifs
+    """
+    if not valeur:
+        return valeur
+    # Supprimer les unités en fin de chaîne
+    valeur = re.sub(r'\s*(?:DT|TND|€|\$|EUR)\s*$', '', valeur.strip(), flags=re.IGNORECASE)
+    return valeur.strip()
 
 
 def extraire_champ(texte: str, champ: str) -> str | None:
@@ -215,14 +366,50 @@ def extraire_champ(texte: str, champ: str) -> str | None:
     for pattern in patterns:
         match = re.search(pattern, texte, re.IGNORECASE | re.MULTILINE)
         if match:
+            # Empêche la date d'échéance de remplir le champ date facture
+            if champ == "date":
+                line_start = texte.rfind("\n", 0, match.start()) + 1
+                line_end = texte.find("\n", match.start())
+                if line_end == -1:
+                    line_end = len(texte)
+                ligne = texte[line_start:line_end].lower()
+                if re.search(r"[eé]ch[eé]ance|due\s*date|date\s*limite|payer\s*avant", ligne):
+                    continue
+
             valeur = match.group(1).strip()
-            # Nettoyage basique
             valeur = re.sub(r'\s+', ' ', valeur)
             valeur = valeur.strip(" .,;:")
 
             # Anti faux positifs sur fournisseur/client
             if champ in {"fournisseur", "client"} and _est_faux_positif_partie(valeur):
                 continue
+
+            # Nettoyer les noms de parties
+            if champ in {"fournisseur", "client"}:
+                valeur = _nettoyer_nom_partie(valeur)
+                if not valeur or len(valeur) < 3:
+                    continue
+
+            # CORRECTION : pour numero_facture, rejeter les valeurs qui ressemblent
+            # à une date pure (ex: "2024" issu d'une date "15/03/2024")
+            if champ == "numero_facture":
+                vlow = valeur.lower()
+                if vlow in {"renseignez", "saisissez", "facture", "numero", "n", "n°", "no"}:
+                    continue
+                # Un numéro de facture fiable contient presque toujours au moins un chiffre.
+                if not re.search(r'\d', valeur):
+                    continue
+                # Rejeter si c'est uniquement une année sur 4 chiffres
+                if re.fullmatch(r'\d{4}', valeur):
+                    continue
+                # Rejeter si la valeur est inférieure à 4 chars et purement numérique
+                # (trop ambiguë — pourrait être une page, un mois, etc.)
+                if len(valeur) < 3:
+                    continue
+
+            # Nettoyage des montants : supprimer unité DT/TND en fin
+            if champ in {"montant_ht", "tva", "montant_ttc", "montant"}:
+                valeur = _nettoyer_montant(valeur)
 
             if valeur:
                 return valeur
